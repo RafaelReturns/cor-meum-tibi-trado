@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SƏN BİLMƏDƏN</title>
+    
+    <!-- Elegant Serif and Clean Sans-serif Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Palette */
+            --bg-deep: #07070B;
+            --bg-surface: #0D0B14;
+            --glass-bg: rgba(23, 16, 32, 0.25);
+            --glass-border: rgba(37, 22, 52, 0.4);
+            --accent-dark: #8E72B7;
+            --accent-light: #CDB8FF;
+            --text-main: #F4F0FF;
+            --text-muted: rgba(244, 240, 255, 0.55);
+            
+            /* Typography */
+            --font-heading: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+            
+            /* Metrics */
+            --glass-radius: 16px;
+            --container-width: 650px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            width: 100%;
+        }
+
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            background: radial-gradient(circle at 50% 50%, var(--bg-surface) 0%, var(--bg-deep) 100%);
+        }
+
+        .ambient-glow {
+            position: fixed;
+            width: 70vw; height: 70vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(142, 114, 183, 0.04) 0%, transparent 70%);
+            top: 15%; left: 15%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: floatGlow 25s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(15%, 20%) scale(1.1); }
+        }
+
+        canvas#particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        h1, h2, h3, .heading-font {
+            font-family: var(--font-heading);
+            font-weight: 300;
+            line-height: 1.35;
+        }
+
+        p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        section {
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 120px 0;
+            position: relative;
+        }
+
+        .section-medium { min-height: 70dvh; }
+        .section-large { min-height: 120dvh; }
+        .section-xl { min-height: 150dvh; }
+
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-deep);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 2s ease, backdrop-filter 2s ease;
+        }
+
+        .loader-text {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            letter-spacing: 0.2em;
+            color: var(--text-main);
+            opacity: 0;
+            animation: pulseFade 2.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseFade {
+            0% { opacity: 0.2; filter: blur(3px); }
+            100% { opacity: 1; filter: blur(0); }
+        }
+
+        #intro {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100dvh;
+            background: var(--bg-deep);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: opacity 2.5s ease, visibility 2.5s ease;
+        }
+
+        .intro-step {
+            position: absolute;
+            opacity: 0;
+            transition: opacity 2s ease, transform 2s ease;
+            transform: translateY(15px);
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            color: var(--text-muted);
+            width: 100%;
+            padding: 0 24px;
+        }
+
+        .intro-step.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .intro-final {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .intro-title {
+            font-size: 2.8rem;
+            letter-spacing: 0.15em;
+            color: var(--text-main);
+            text-shadow: 0 0 25px rgba(205, 184, 255, 0.15);
+        }
+
+        .intro-author {
+            font-style: italic;
+            font-size: 1.2rem;
+            color: var(--accent-dark);
+        }
+
+        .btn-start {
+            margin-top: 50px;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 12px 36px;
+            border-radius: 40px;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            opacity: 0.8;
+        }
+
+        .btn-start:hover, .btn-start:active {
+            background: rgba(205, 184, 255, 0.05);
+            border-color: var(--accent-light);
+            opacity: 1;
+        }
+
+        .main-content {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 3s ease;
+        }
+        
+        .main-content.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .cinematic-sequence {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .seq-item {
+            opacity: 0;
+            filter: blur(8px);
+            transform: translateY(20px);
+            transition: opacity 2.5s ease, filter 2.5s ease, transform 2.5s ease;
+            margin-bottom: 3rem; 
+        }
+
+        .seq-item.active {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+        }
+
+        .seq-item.muted {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            opacity: 0; 
+            transition: opacity 3s ease, filter 3s ease, transform 3s ease;
+        }
+        
+        .seq-item.muted.active { opacity: 0.5; }
+
+        .seq-item.highlight {
+            color: var(--text-main);
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .seq-item.poem-line {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            color: var(--text-main);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        .seq-item.poem-line.stanza-break {
+            margin-bottom: 4rem;
+        }
+
+        .seq-item.poem-title {
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            letter-spacing: 0.25em;
+            color: var(--accent-dark);
+            text-transform: uppercase;
+            margin-bottom: 5rem;
+            text-align: center;
+        }
+
+        .seq-item.poem-finale {
+            font-family: var(--font-heading);
+            font-size: 2.2rem;
+            color: var(--text-main);
+            line-height: 1.5;
+            margin-top: 2rem;
+        }
+
+        .seq-item.small-note {
+            font-size: 0.85rem;
+            font-style: italic;
+            opacity: 0;
+        }
+        
+        .seq-item.small-note.active { opacity: 0.4; }
+
+        /* GoT Vibe - Ember & Ice */
+        .ember-text {
+            color: #ffd6d6;
+            text-shadow: 0 0 25px rgba(220, 50, 32, 0.4);
+            font-family: var(--font-heading);
+            font-size: 2.2rem;
+            letter-spacing: 0.05em;
+        }
+
+        .ice-text {
+            color: #d6f0ff;
+            text-shadow: 0 0 25px rgba(100, 200, 255, 0.4);
+            font-family: var(--font-heading);
+            font-size: 2.2rem;
+            letter-spacing: 0.05em;
+        }
+
+        .got-ambient {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 3s ease;
+        }
+        
+        .got-ambient.active { opacity: 1; }
+
+        .split-section {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin: 4rem 0;
+            position: relative;
+        }
+
+        .split-side {
+            padding: 3rem 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .split-left {
+            border-bottom: 1px solid rgba(244, 240, 255, 0.05);
+            background: radial-gradient(circle at top, rgba(220, 50, 32, 0.04) 0%, transparent 60%);
+        }
+
+        .split-right {
+            background: radial-gradient(circle at bottom, rgba(100, 200, 255, 0.04) 0%, transparent 60%);
+            padding-top: 4rem;
+        }
+
+        .split-center-line {
+            display: none;
+        }
+
+        /* Spacing Utilities */
+        .gap-xxl { margin-bottom: 8rem; }
+        .gap-xl { margin-bottom: 6rem; }
+        .gap-lg { margin-bottom: 4rem; }
+        .gap-md { margin-bottom: 2rem; }
+        .gap-sm { margin-bottom: 1rem; }
+
+        .real-quote-mini {
+            font-family: var(--font-heading);
+            font-style: italic;
+            font-size: 1.1rem;
+            color: rgba(244, 240, 255, 0.4);
+            margin-bottom: 1.5rem;
+            padding-left: 15px;
+            border-left: 1px solid rgba(244, 240, 255, 0.1);
+        }
+
+        .music-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(23, 16, 32, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            cursor: pointer;
+            z-index: 900;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.4s ease;
+        }
+
+        .music-toggle.playing {
+            color: var(--text-main);
+            border-color: rgba(205, 184, 255, 0.4);
+            background: rgba(142, 114, 183, 0.15);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, ::before, ::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            .ambient-glow { display: none; }
+        }
+
+        @media (min-width: 768px) {
+            .intro-title { font-size: 3.5rem; }
+            .seq-item.highlight { font-size: 2.2rem; }
+            .seq-item.poem-line { font-size: 1.8rem; }
+            .seq-item.poem-finale { font-size: 2.8rem; }
+            section { padding: 150px 0; }
+            
+            .split-section {
+                flex-direction: row;
+                margin: 6rem 0;
+            }
+            
+            .split-side {
+                flex: 1;
+                padding: 4rem;
+            }
+            
+            .split-left {
+                border-bottom: none;
+                background: radial-gradient(circle at left, rgba(220, 50, 32, 0.04) 0%, transparent 70%);
+                align-items: flex-end;
+                text-align: right;
+                padding-right: 4rem;
+            }
+            
+            .split-right {
+                padding-top: 4rem;
+                background: radial-gradient(circle at right, rgba(100, 200, 255, 0.04) 0%, transparent 70%);
+                align-items: flex-start;
+                text-align: left;
+                padding-left: 4rem;
+            }
+
+            .split-center-line {
+                display: block;
+                width: 1px;
+                background: linear-gradient(to bottom, transparent, rgba(244, 240, 255, 0.1), transparent);
+                position: absolute;
+                left: 50%;
+                top: 10%;
+                height: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="loader-text">R + M</div>
+    </div>
+
+    <div class="ambient-bg"></div>
+    <div class="ambient-glow"></div>
+    <canvas id="particles"></canvas>
+
+    <div id="intro">
+        <div class="intro-step" id="step1">Bəzi insanlar həyatına gəlir.</div>
+        <div class="intro-step" id="step2">Sonra fərqinə varmadan...</div>
+        <div class="intro-step" id="step3">onlara öyrəşirsən.</div>
+        <div class="intro-step intro-final" id="step4">
+            <h1 class="intro-title">SƏN BİLMƏDƏN</h1>
+            <p class="intro-author">— Rafoş</p>
+            <button class="btn-start" id="startBtn">başlayaq &rarr;</button>
+        </div>
+    </div>
+
+    <!-- Music Player -->
+    <audio id="bgMusic" loop>
+        <source src="reflection.mp3" type="audio/mpeg">
+    </audio>
+    <button class="music-toggle" id="musicBtn">
+        <span>♪</span> <span id="musicState">music</span>
+    </button>
+
+    <main class="main-content" id="mainContent">
+        
+        <!-- SECTION I: ŞEİR (SAYTIN MƏRKƏZİ) -->
+        <section class="container section-xl" style="padding-top: 15vh;">
+            <div class="cinematic-sequence">
+                <p class="seq-item small-note gap-xxl" data-delay="1000" style="text-align: center;">bir az da sözlərin demədiyini dinlə</p>
+                
+                <p class="seq-item poem-title gap-xl" data-delay="5000">ADINI QOYMADIĞIMIZ ŞEY</p>
+                
+                <p class="seq-item poem-line" data-delay="8000">Bəzən bir insan gəlir,</p>
+                <p class="seq-item poem-line stanza-break" data-delay="11000">heç nəyi dəyişdirmədən.</p>
+                
+                <p class="seq-item poem-line" data-delay="14000">Nə şəhəri,</p>
+                <p class="seq-item poem-line" data-delay="17000">nə küçələri,</p>
+                <p class="seq-item poem-line stanza-break" data-delay="20000">nə də səhərləri.</p>
+                
+                <p class="seq-item poem-line" data-delay="23000">Sadəcə</p>
+                <p class="seq-item poem-line" data-delay="26000">eyni dünyaya</p>
+                <p class="seq-item poem-line stanza-break" data-delay="29000">başqa bir mənayla baxmağa başlayırsan.</p>
+                
+                <p class="seq-item poem-line" data-delay="33000">Əvvəl bunu hiss etmirsən.</p>
+                <p class="seq-item poem-line" data-delay="36000">Bir söhbət olur.</p>
+                <p class="seq-item poem-line stanza-break" data-delay="39000">Sonra başqa biri.</p>
+                
+                <p class="seq-item poem-line" data-delay="43000">Sonra günün içində</p>
+                <p class="seq-item poem-line" data-delay="46000">heç kimə aid olmayan kiçik bir şey görürsən</p>
+                <p class="seq-item poem-line" data-delay="49000">və ilk düşündüyün insan</p>
+                <p class="seq-item poem-line stanza-break" data-delay="52000">o olur.</p>
+                
+                <p class="seq-item poem-line" data-delay="56000">Bəlkə sevgi</p>
+                <p class="seq-item poem-line" data-delay="59000">elə buradan başlayır.</p>
+                <p class="seq-item poem-line" data-delay="62000">Sözlərdən əvvəl.</p>
+                <p class="seq-item poem-line" data-delay="65000">Etiraflardan əvvəl.</p>
+                <p class="seq-item poem-line" data-delay="68000">Hətta insanın</p>
+                <p class="seq-item poem-line stanza-break" data-delay="71000">özündən əvvəl.</p>
+                
+                <p class="seq-item poem-line" data-delay="75000">Bir gün anlayırsan ki,</p>
+                <p class="seq-item poem-line" data-delay="78000">bəzi insanlar</p>
+                <p class="seq-item poem-line stanza-break" data-delay="81000">həyatımıza gəlmir.</p>
+                
+                <p class="seq-item poem-line" data-delay="84000">Onlar</p>
+                <p class="seq-item poem-line" data-delay="87000">həyatımızın içində</p>
+                <p class="seq-item poem-line stanza-break" data-delay="90000">səssizcə yer tapırlar.</p>
+                
+                <p class="seq-item poem-line" data-delay="93000">Və sonra</p>
+                <p class="seq-item poem-line" data-delay="96000">onların yoxluğu</p>
+                <p class="seq-item poem-line stanza-break" data-delay="99000">səssiz qalmır.</p>
+                
+                <p class="seq-item poem-line" data-delay="103000">Mən sənin üçün</p>
+                <p class="seq-item poem-line stanza-break" data-delay="106000">böyük sözlər yazmaq istəmədim.</p>
+                
+                <p class="seq-item poem-line" data-delay="109000">Çünki böyük sözlər</p>
+                <p class="seq-item poem-line" data-delay="112000">bəzən kiçik həqiqətlərin</p>
+                <p class="seq-item poem-line stanza-break" data-delay="115000">üstünü örtür.</p>
+                
+                <p class="seq-item poem-line" data-delay="119000">Mən sadəcə bunu bilirəm:</p>
+                <p class="seq-item poem-line" data-delay="122000">sən gələndən sonra</p>
+                <p class="seq-item poem-line" data-delay="125000">bəzi günlər</p>
+                <p class="seq-item poem-line stanza-break" data-delay="128000">əvvəlki kimi olmadı.</p>
+                
+                <p class="seq-item poem-line" data-delay="132000">Bəlkə bunun adı sevgidir.</p>
+                <p class="seq-item poem-line stanza-break" data-delay="135000">Bəlkə deyil.</p>
+                
+                <p class="seq-item poem-line" data-delay="138000">Bəlkə adını qoymaq</p>
+                <p class="seq-item poem-line stanza-break" data-delay="141000">heç vacib də deyil.</p>
+                
+                <p class="seq-item poem-finale" data-delay="145000">Bəlkə bəzi hisslər</p>
+                <p class="seq-item poem-finale" data-delay="149000">adlandırılmaq üçün yox,</p>
+                <p class="seq-item poem-finale" data-delay="153000">yaşanmaq üçün gəlir.</p>
+                
+                <p class="seq-item small-note gap-xxl" data-delay="160000" style="margin-top: 6rem; text-align: right;">— Rafoş</p>
+            </div>
+        </section>
+
+        <!-- SECTION II: ŞEİRDƏN SONRA KEÇİD -->
+        <section class="container section-medium">
+            <div class="cinematic-sequence" style="align-items: center; text-align: center;">
+                <p class="seq-item small-note gap-xl" data-delay="1000">Bəzi hekayələr isə bizdən əvvəl yazılıb.</p>
+                <p class="seq-item small-note gap-xl" data-delay="5000">Bəzilərini sadəcə özümüzdə tanıyırıq.</p>
+                <p class="seq-item small-note gap-xl" data-delay="9000">məsələn…</p>
+                <p class="seq-item muted gap-xxl" data-delay="14000">iki fərqli alovun<br>eyni gecədə görünməsi kimi.</p>
+            </div>
+        </section>
+
+        <!-- SECTION III: GAME OF THRONES İNTRO -->
+        <section class="container" style="position: relative;">
+            <div class="got-ambient" id="gotAmbient"></div>
+            <div class="cinematic-sequence">
+                <p class="seq-item highlight gap-lg" data-delay="0">Bəlkə ona görə səni bir hekayənin içində təsəvvür edə bilirəm.</p>
+                <p class="seq-item gap-md" data-delay="4000">Çünki bəzən insanı</p>
+                <p class="seq-item gap-md" data-delay="7000">özümüzdən yox,</p>
+                <p class="seq-item gap-xl" data-delay="10000">sevdiyimiz hekayələrdən tanıyırıq.</p>
+            </div>
+        </section>
+
+        <!-- SECTION IV & V: DAEMON & LYANNA SPLIT VIEW -->
+        <section class="container section-large" style="max-width: 900px;">
+            <div class="split-section cinematic-sequence">
+                <div class="split-center-line"></div>
+                
+                <!-- SOL: DAEMON -->
+                <div class="split-side split-left">
+                    <p class="seq-item ember-text gap-lg" data-delay="0">Daemon.</p>
+                    <p class="seq-item gap-md" data-delay="4000">od kimi yaşayan.</p>
+                    <p class="seq-item gap-md" data-delay="7000">sərhədləri sevməyən.</p>
+                    <p class="seq-item gap-md" data-delay="10000">öz yolunu başqasının yazdığı qaydalarla ölçməyən.</p>
+                    <p class="seq-item gap-xl" data-delay="14000">sakit görünəndə belə<br>içində həmişə bir fırtına daşıyan.</p>
+                    
+                    <p class="seq-item gap-sm" data-delay="19000">Bəlkə ona görə</p>
+                    <p class="seq-item muted" data-delay="22000">onun bəzi tərəflərində<br>məni xatırladan bir şey var.</p>
+                </div>
+
+                <!-- SAĞ: LYANNA -->
+                <div class="split-side split-right">
+                    <p class="seq-item ice-text gap-lg" data-delay="26000">Lyanna.</p>
+                    <p class="seq-item gap-md" data-delay="30000">sakit görünən,<br>amma içində öz dünyası olan.</p>
+                    <p class="seq-item gap-md" data-delay="34000">başqasının onun üçün çəkdiyi sərhədlərə<br>sığmayan.</p>
+                    <p class="seq-item gap-md" data-delay="38000">özünü qorumağı<br>səssizliklə bacaran.</p>
+                    <p class="seq-item gap-xl" data-delay="42000">sevdiyi şeylərə<br>başqalarının qoyduğu adlardan<br>daha çox inanan.</p>
+                    
+                    <p class="seq-item gap-sm" data-delay="47000">Bəlkə səndə</p>
+                    <p class="seq-item muted" data-delay="50000">mənə bunu xatırladan bir şey var.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION VI: İKİSİNİN ARASINDA -->
+        <section class="container section-large">
+            <div class="cinematic-sequence">
+                <p class="seq-item gap-md" data-delay="0">Bəlkə məsələ oxşamaqda deyil.</p>
+                <p class="seq-item gap-xl" data-delay="4000">Bəlkə məsələ<br>fərqli olmaqdır.</p>
+                
+                <p class="seq-item gap-md" data-delay="8000">Biri alov kimi.</p>
+                <p class="seq-item gap-lg" data-delay="11000">Biri şimal küləyi kimi.</p>
+                
+                <p class="seq-item gap-md" data-delay="15000">Biri dünyanı qarşısına almağa hazır.</p>
+                <p class="seq-item gap-xl" data-delay="18000">Biri öz dünyasını<br>heç kimə verməməyə.</p>
+                
+                <p class="seq-item gap-lg" data-delay="22000">Amma qəribədir…</p>
+                <p class="seq-item gap-xl" data-delay="27000">Bəzən ən fərqli iki insanı<br>eyni şey yaxınlaşdırır.</p>
+                
+                <p class="seq-item highlight gap-md" data-delay="33000">Bir-birini dəyişdirmək yox.</p>
+                <p class="seq-item highlight" data-delay="37000">Bir-birini olduğu kimi görə bilmək.</p>
+            </div>
+        </section>
+
+        <!-- SECTION VII: BİZİM VERSİYAMIZ -->
+        <section class="container">
+            <div class="cinematic-sequence">
+                <p class="seq-item gap-md" data-delay="0">Westeros-da deyil.</p>
+                <p class="seq-item gap-md" data-delay="3000">Taxt uğrunda deyil.</p>
+                <p class="seq-item gap-md" data-delay="6000">Əfsanə üçün deyil.</p>
+                <p class="seq-item gap-xl" data-delay="9000">Sadəcə iki insan.</p>
+                
+                <p class="seq-item gap-md" data-delay="13000">Biri bir az çox düşünən.</p>
+                <p class="seq-item gap-lg" data-delay="16000">Biri bir az çox hiss edən.</p>
+                
+                <p class="seq-item gap-md" data-delay="20000">Bəzən yaxınlaşan.</p>
+                <p class="seq-item gap-lg" data-delay="23000">Bəzən geri çəkilən.</p>
+                
+                <p class="seq-item gap-md" data-delay="27000">Amma nədənsə</p>
+                <p class="seq-item muted" data-delay="30000">yenə bir-birini axtaran.</p>
+            </div>
+        </section>
+
+        <!-- SECTION VIII: DAHA DƏRİN FİKİR -->
+        <section class="container section-large">
+            <div class="cinematic-sequence">
+                <p class="seq-item gap-md" data-delay="0">Bəlkə bizi oxşadan<br>Daemon və Lyanna deyil.</p>
+                <p class="seq-item gap-lg" data-delay="4000">Bəlkə bizi oxşadan şey<br>onların içindəki ziddiyyətdir.</p>
+                
+                <p class="seq-item highlight gap-xl" data-delay="9000">İnsan bəzən özünə oxşayanı yox,<br>özündə olmayanı daşıyanı axtarır.</p>
+                
+                <p class="seq-item gap-md" data-delay="14000">Birində cəsarət var.</p>
+                <p class="seq-item gap-lg" data-delay="17000">Birində ehtiyat.</p>
+                
+                <p class="seq-item gap-md" data-delay="21000">Birində atılmaq.</p>
+                <p class="seq-item gap-xl" data-delay="24000">Birində dayanmaq.</p>
+                
+                <p class="seq-item gap-md" data-delay="28000">Və bəzən</p>
+                <p class="seq-item gap-md" data-delay="31000">iki insanın hekayəsini</p>
+                <p class="seq-item muted" data-delay="35000">məhz bu fərq yazır.</p>
+            </div>
+        </section>
+
+        <!-- SECTION IX: REAL CHAT İLƏ BAĞLANTI -->
+        <section class="container">
+            <div class="cinematic-sequence">
+                <p class="seq-item real-quote-mini" data-delay="0">"darıxdım sadəcə"</p>
+                <p class="seq-item real-quote-mini" data-delay="2500">"öyrəşmişdim sənə"</p>
+                <p class="seq-item real-quote-mini gap-xl" data-delay="5000">"səni avtobusda düşündüm"</p>
+                
+                <p class="seq-item gap-md" data-delay="9000">Bəlkə hekayələr bizə<br>özümüz haqqında danışır.</p>
+                <p class="seq-item gap-lg" data-delay="13000">Bəlkə ona görə<br>bəzi personajlarda özümüzü tapırıq.</p>
+                
+                <p class="seq-item gap-md" data-delay="17000">Və bəzən…</p>
+                <p class="seq-item muted" data-delay="21000">…bir başqasını.</p>
+            </div>
+        </section>
+
+        <!-- SECTION X: HEÇ BİR QƏRAR TƏLƏB ETMƏ -->
+        <section class="container section-medium">
+            <div class="cinematic-sequence">
+                <p class="seq-item gap-md" data-delay="0">Bəlkə sadəcə</p>
+                <p class="seq-item gap-md" data-delay="3000">özümüzü bir hekayənin içində</p>
+                <p class="seq-item muted" data-delay="6000">bir az tanıdıq.</p>
+            </div>
+        </section>
+
+        <!-- SECTION XI: FİNALDA ÇOX GÜCLÜ KEÇİD -->
+        <section class="container section-large">
+            <div class="cinematic-sequence">
+                <p class="seq-item gap-md" data-delay="0">Bütün hekayələrdə<br>bir şey var.</p>
+                <p class="seq-item gap-md" data-delay="4000">İnsanlar başlanğıcı xatırlayır.</p>
+                <p class="seq-item gap-xl" data-delay="7000">Sonu da.</p>
+                
+                <p class="seq-item gap-lg" data-delay="12000">Amma ən vacib hissə…</p>
+                <p class="seq-item highlight gap-xl" data-delay="16000">…ikisinin arasında yaşananlardır.</p>
+                
+                <p class="seq-item muted" data-delay="21000">Bəlkə biz də<br>hələ həmin hissədəyik.</p>
+            </div>
+        </section>
+
+        <!-- SECTION XVII: SON CÜMLƏ VƏ FADE OUT -->
+        <section class="container section-xl" style="align-items: center; text-align: center; justify-content: flex-end; padding-bottom: 30vh;">
+            <div class="cinematic-sequence" style="align-items: center;">
+                <p class="seq-item highlight gap-md" data-delay="0">Bəlkə bəzi hekayələr<br>sonunu bilmək üçün deyil.</p>
+                <p class="seq-item highlight gap-xl" data-delay="5000">Sadəcə<br>içində olduğun anı<br>həqiqətən hiss etmək üçündür.</p>
+                
+                <p class="seq-item small-note" data-delay="11000" data-is-final="true">— Rafoş</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Remove Loader after short delay
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 2000);
+                initIntro();
+            }, 1200);
+
+            // ==========================================
+            // SYSTEM FUNCTIONS
+            // ==========================================
+
+            // 1. Intro Animation Sequence
+            function initIntro() {
+                const steps = [
+                    document.getElementById('step1'),
+                    document.getElementById('step2'),
+                    document.getElementById('step3'),
+                    document.getElementById('step4')
+                ];
+                
+                let currentStep = 0;
+                
+                const showNextStep = () => {
+                    if (currentStep > 0 && currentStep < steps.length) {
+                        steps[currentStep - 1].classList.remove('active');
+                    }
+                    if (currentStep < steps.length) {
+                        steps[currentStep].classList.add('active');
+                        let delay = currentStep === steps.length - 1 ? 0 : 3500;
+                        if(delay > 0) {
+                            setTimeout(() => {
+                                currentStep++;
+                                showNextStep();
+                            }, delay);
+                        }
+                    }
+                };
+
+                setTimeout(showNextStep, 800);
+
+                const startBtn = document.getElementById('startBtn');
+                startBtn.addEventListener('click', () => {
+                    document.getElementById('intro').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('intro').style.visibility = 'hidden';
+                        document.getElementById('mainContent').classList.add('visible');
+                        window.scrollTo(0, 0);
+                        initMusic(true);
+                    }, 2500);
+                });
+            }
+
+            // 2. Cinematic Sequence Reveal
+            function initSequenceReveal() {
+                const observerOptions = {
+                    root: null,
+                    rootMargin: '0px 0px -10% 0px', 
+                    threshold: 0.1
+                };
+
+                const sequenceObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const items = entry.target.querySelectorAll('.seq-item');
+                            
+                            // Check if this sequence contains GoT ambient trigger
+                            if(entry.target.querySelector('.got-ambient')) {
+                                document.getElementById('gotAmbient').classList.add('active');
+                            }
+
+                            items.forEach(item => {
+                                const delay = parseInt(item.getAttribute('data-delay') || '0');
+                                setTimeout(() => {
+                                    item.classList.add('active');
+                                    
+                                    // Trigger Finale Fade-out if it's the last element
+                                    if(item.getAttribute('data-is-final') === 'true') {
+                                        triggerFinale();
+                                    }
+                                    
+                                }, delay);
+                            });
+                            
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, observerOptions);
+
+                document.querySelectorAll('.cinematic-sequence').forEach(seq => {
+                    sequenceObserver.observe(seq);
+                });
+            }
+            
+            // 3. Finale Screen & Audio Fade Out
+            function triggerFinale() {
+                // Wait 12 seconds after the last text appears to let it sink in
+                setTimeout(() => {
+                    document.body.style.transition = 'opacity 6s ease-in-out';
+                    document.body.style.opacity = '0';
+                    
+                    const audio = document.getElementById('bgMusic');
+                    if(audio && !audio.paused) {
+                        let vol = audio.volume;
+                        const fadeOut = setInterval(() => {
+                            if(vol > 0.01) {
+                                vol -= 0.01;
+                                audio.volume = Math.max(0, vol);
+                            } else {
+                                clearInterval(fadeOut);
+                                audio.pause();
+                            }
+                        }, 200); // Gradual music fade out
+                    }
+                }, 12000); 
+            }
+
+            // 4. Ambient Particle System 
+            function initParticles() {
+                const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+                if (mq.matches) return;
+
+                const canvas = document.getElementById('particles');
+                const ctx = canvas.getContext('2d');
+                let width, height;
+                let particlesArray = [];
+                const isMobile = window.innerWidth < 768;
+                const numberOfParticles = isMobile ? 25 : 50; 
+
+                function resize() {
+                    width = canvas.width = window.innerWidth;
+                    height = canvas.height = window.innerHeight;
+                }
+                
+                window.addEventListener('resize', resize, { passive: true });
+                resize();
+
+                class Particle {
+                    constructor() {
+                        this.x = Math.random() * width;
+                        this.y = Math.random() * height;
+                        this.size = Math.random() * 1.2;
+                        this.speedY = Math.random() * 0.12 + 0.03;
+                        this.opacity = Math.random() * 0.35;
+                    }
+                    update() {
+                        this.y -= this.speedY;
+                        if (this.y < 0) {
+                            this.y = height;
+                            this.x = Math.random() * width;
+                        }
+                    }
+                    draw() {
+                        // Using a neutral, slightly warm starlight color to fit all sections
+                        ctx.fillStyle = `rgba(230, 220, 255, ${this.opacity})`;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                for (let i = 0; i < numberOfParticles; i++) {
+                    particlesArray.push(new Particle());
+                }
+
+                function animate() {
+                    ctx.clearRect(0, 0, width, height);
+                    for (let i = 0; i < particlesArray.length; i++) {
+                        particlesArray[i].update();
+                        particlesArray[i].draw();
+                    }
+                    requestAnimationFrame(animate);
+                }
+                animate();
+            }
+
+            // 5. Music System
+            function initMusic(isAuto = false) {
+                const audio = document.getElementById('bgMusic');
+                const btn = document.getElementById('musicBtn');
+                const state = document.getElementById('musicState');
+                
+                audio.volume = 0.15;
+
+                const toggleMusic = () => {
+                    if (audio.paused) {
+                        let playPromise = audio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(_ => {
+                                btn.classList.add('playing');
+                                state.innerText = 'ON';
+                            }).catch(error => {
+                                console.log("Audio playback prevented by browser.");
+                            });
+                        }
+                    } else {
+                        audio.pause();
+                        btn.classList.remove('playing');
+                        state.innerText = 'OFF';
+                    }
+                };
+
+                if(isAuto) {
+                    toggleMusic();
+                }
+
+                btn.replaceWith(btn.cloneNode(true));
+                const newBtn = document.getElementById('musicBtn');
+                newBtn.addEventListener('click', toggleMusic);
+            }
+
+            // Execute Systems
+            initSequenceReveal();
+            initParticles();
+
+        });
+    </script>
+</body>
+</html>
